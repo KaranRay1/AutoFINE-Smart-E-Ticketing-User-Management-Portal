@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Challans - AutoFINE{% endblock %}
+
+{% block content %}
+<div class="main-content-professional animate-fade-in-professional" style="background: #ffffff;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-2" style="color: var(--navy-blue); font-weight: 700;">
+                <i class="bi bi-file-earmark-text challan-icon"></i> All Challans
+            </h2>
+            <p class="text-muted" style="color: var(--text-medium);">Search, filter, inspect, and mark payments</p>
+        </div>
+        <div>
+            <a href="{{ url_for('admin_challan_new') }}" class="btn-professional btn-professional-primary">
+                <i class="bi bi-file-earmark-plus"></i> Create Challan
+            </a>
+        </div>
+    </div>
+
+    <div class="card-professional mb-3">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('admin_challans') }}" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" class="form-control-professional" name="search" placeholder="Search by license plate..." value="{{ search }}">
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control-professional" name="status">
+                        <option value="">All Status</option>
+                        <option value="Paid" {% if status_filter == 'Paid' %}selected{% endif %}>Paid</option>
+                        <option value="Unpaid" {% if status_filter == 'Unpaid' %}selected{% endif %}>Unpaid</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-grid">
+                    <button type="submit" class="btn-professional btn-professional-primary">
+                        <i class="bi bi-search"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card-professional">
+        <div class="card-body">
+            {% if challans %}
+                <div class="table-responsive">
+                    <table class="table table-professional">
+                        <thead>
+                            <tr>
+                                <th>Challan ID</th>
+                                <th>License Plate</th>
+                                <th>Violation Type</th>
+                                <th>Location</th>
+                                <th>Fine Amount</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for challan in challans %}
+                                <tr>
+                                    <td>#{{ challan.id }}</td>
+                                    <td><strong>{{ challan.license_number }}</strong></td>
+                                    <td>{{ challan.violation_type }}</td>
+                                    <td>{{ challan.location }}</td>
+                                    <td><strong>₹{{ challan.fine_amount }}</strong></td>
+                                    <td>{{ challan.due_date }}</td>
+                                    <td>
+                                        {% if challan.status == 'Paid' %}
+                                            <span class="badge-professional badge-professional-success">Paid</span>
+                                        {% else %}
+                                            <span class="badge-professional badge-professional-danger">Unpaid</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ challan.created_at }}</td>
+                                    <td>
+                                        {% if challan.status == 'Unpaid' %}
+                                            <button class="btn btn-sm btn-success" onclick="markPaid({{ challan.id }})"><i class="bi bi-check"></i> Mark Paid</button>
+                                        {% endif %}
+                                        <a class="btn btn-sm btn-primary" href="{{ url_for('admin_challan_detail', challan_id=challan.id) }}"><i class="bi bi-eye"></i> View</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No challans found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+async function markPaid(challanId) {
+    if (!confirm('Mark this challan as paid?')) return;
+    
+    try {
+        const response = await fetch(`/api/challan/${challanId}/pay`, {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Challan marked as paid!');
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+</script>
+{% endblock %}

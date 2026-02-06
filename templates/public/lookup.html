@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Challan Lookup - AutoFINE{% endblock %}
+
+{% block content %}
+<div class="main-content-professional animate-fade-in-professional" style="background: #ffffff;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1" style="color: var(--navy-blue); font-weight: 700;">
+        <i class="bi bi-search" style="color: var(--navy-blue);"></i> Challan Lookup
+      </h2>
+      <div style="color: var(--text-medium);">Search by <strong>Challan UIN</strong>, <strong>Vehicle No</strong>, or <strong>DL No</strong>.</div>
+    </div>
+  </div>
+
+  <form method="GET" class="row g-3 mb-4">
+    <div class="col-md-6">
+      <input class="form-control-professional" name="q" value="{{ q }}" placeholder="e.g., UIN-ABC123..., UK-07-AA-1234, UKDL-.." required />
+    </div>
+    <div class="col-md-4">
+      <select class="form-control-professional" name="city">
+        <option value="">All Cities</option>
+        {% for c in cities %}
+          <option value="{{ c }}" {% if city == c %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 d-grid">
+      <button class="btn-professional btn-professional-primary" type="submit">
+        <i class="bi bi-search"></i> Search
+      </button>
+    </div>
+  </form>
+
+  {% if q %}
+    <div class="card-professional">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          Results
+          <span class="badge-professional badge-professional-primary">{{ results|length }}</span>
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if results %}
+          <div class="table-responsive">
+            <table class="table table-professional table-sm">
+              <thead>
+                <tr>
+                  <th>UIN</th>
+                  <th>Vehicle</th>
+                  <th>Violation</th>
+                  <th>City</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Issued</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for ch in results %}
+                  <tr>
+                    <td>{{ ch.uin or ('#' ~ ch.id) }}</td>
+                    <td>{{ ch.vehicle.license_number }}</td>
+                    <td>{{ ch.violation_type }}</td>
+                    <td>{{ ch.vehicle.city or 'N/A' }}</td>
+                    <td><strong>₹{{ ch.fine_amount }}</strong></td>
+                    <td>
+                      {% if ch.status == 'Paid' %}
+                        <span class="badge-professional badge-professional-success">Paid</span>
+                      {% elif ch.status == 'Court' %}
+                        <span class="badge-professional badge-professional-warning">Court</span>
+                      {% else %}
+                        <span class="badge-professional badge-professional-danger">Unpaid</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ ch.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div style="color: var(--muted-foreground);">No challans found for your query.</div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+

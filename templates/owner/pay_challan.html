@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Pay Challan - AutoFINE{% endblock %}
+
+{% block content %}
+<div class="main-content-professional" style="background: #ffffff; max-width: 700px; margin: 0 auto;">
+    <div class="card-professional mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0"><i class="bi bi-credit-card"></i> Pay Challan</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm">
+                <tr><th class="text-muted" style="width: 40%;">Challan UIN</th><td><strong>{{ challan.uin or ('#' ~ challan.id) }}</strong></td></tr>
+                <tr><th class="text-muted">Vehicle</th><td>{{ challan.vehicle.license_number }}</td></tr>
+                <tr><th class="text-muted">Violation</th><td>{{ challan.violation_type }}</td></tr>
+                <tr><th class="text-muted">Location</th><td>{{ challan.location or 'N/A' }}</td></tr>
+                <tr><th class="text-muted">Due date</th><td>{{ challan.due_date.strftime('%d %b %Y') if challan.due_date else 'N/A' }}</td></tr>
+                <tr><th class="text-muted">Amount</th><td><strong class="text-success">₹{{ "%.0f"|format(challan.fine_amount) }}</strong></td></tr>
+            </table>
+
+            <div class="row align-items-center mt-4">
+                <div class="col-md-6 text-center mb-3">
+                    <p class="mb-2 small text-muted">Scan to open this page on your phone and pay</p>
+                    {% if qr_base64 %}
+                        <img src="data:image/png;base64,{{ qr_base64 }}" alt="QR Code" style="max-width: 200px; height: auto; border: 1px solid #eee; border-radius: 8px;">
+                    {% else %}
+                        <p class="text-muted small">QR not available</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-2 small text-muted">Enter payment password and pay</p>
+                    <div class="mb-2">
+                        <label class="form-label">Payment Password</label>
+                        <input type="password" class="form-control" id="payment-password" placeholder="Enter password" required>
+                        <small class="text-muted">Use password 1234</small>
+                    </div>
+                    <button type="button" class="btn btn-success btn-lg w-100" id="btn-razorpay">
+                        <i class="bi bi-credit-card"></i> Pay with Razorpay
+                    </button>
+                    <p class="small text-muted mt-2 mb-0">You will be redirected to Razorpay checkout.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="text-center">
+        <a href="{{ url_for('owner_dashboard') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+    </p>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+(function() {
+    var challanId = {{ challan.id }};
+    document.getElementById('btn-razorpay').addEventListener('click', function() {
+        var btn = this;
+        var pwd = (document.getElementById('payment-password').value || '').trim();
+        if (!pwd) { alert('Enter payment password'); return; }
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
+        fetch('/api/razorpay/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ challan_id: challanId, password: pwd })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-credit-card"></i> Pay with Razorpay';
+            if (data.error && data.fallback_mock) {
+                if (confirm('Razorpay is not configured. Use test payment?')) {
+                    fetch('/api/payments/mock', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ challan_id: challanId, password: pwd }) })
+                        .then(function(res) { return res.json(); })
+                        .then(function(d) {
+                            if (d.success) { alert('Payment recorded.'); window.location.href = '{{ url_for("owner_dashboard") }}'; }
+                            else alert(d.error || 'Failed');
+                        });
+                }
+                return;
+            }
+            if (!data.order_id || !data.key_id) {
+                alert(data.error || 'Could not create order');
+                return;
+            }
+            var options = {
+                key: data.key_id,
+                amount: data.amount,
+                currency: data.currency || 'INR',
+                order_id: data.order_id,
+                name: 'AutoFINE E-Challan',
+                description: 'Challan ' + (data.uin || '') + ' - Fine ₹' + (data.amount / 100),
+                handler: function(response) {
+                    fetch('/api/razorpay/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature,
+                            challan_id: challanId,
+                            password: pwd
+                        })
+                    })
+                    .then(function(res) { return res.json(); })
+                    .then(function(d) {
+                        if (d.success) {
+                            alert('Payment successful! Ref: ' + (d.payment_id || ''));
+                            window.location.href = '{{ url_for("owner_dashboard") }}';
+                        } else alert(d.error || 'Verification failed');
+                    });
+                }
+            };
+            var rzp = new Razorpay(options);
+            rzp.on('payment.failed', function() { alert('Payment failed or cancelled.'); });
+            rzp.open();
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-credit-card"></i> Pay with Razorpay';
+            alert('Error: ' + (err.message || 'Network error'));
+        });
+    });
+})();
+</script>
+{% endblock %}

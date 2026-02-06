@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Vehicles - AutoFINE{% endblock %}
+
+{% block content %}
+<div class="main-content-professional animate-fade-in-professional" style="background: #ffffff;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-2" style="color: var(--navy-blue); font-weight: 700;">
+                <i class="bi bi-car-front vehicle-icon"></i> All Vehicles
+            </h2>
+            <p class="text-muted" style="color: var(--text-medium);">Search and review vehicle registry</p>
+        </div>
+    </div>
+
+    <div class="card-professional mb-3">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('admin_vehicles') }}" class="row g-3">
+                <div class="col-md-9">
+                    <input type="text" class="form-control-professional" name="search" placeholder="Search by license plate or model..." value="{{ search }}">
+                </div>
+                <div class="col-md-3 d-grid">
+                    <button type="submit" class="btn-professional btn-professional-primary">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card-professional">
+        <div class="card-body">
+            {% if vehicles %}
+                <div class="table-responsive">
+                    <table class="table table-professional table-hover">
+                        <thead>
+                            <tr>
+                                <th>License Plate</th>
+                                <th>Model</th>
+                                <th>Color</th>
+                                <th>Type</th>
+                                <th>Owner</th>
+                                <th>Registration Date</th>
+                                <th>Insurance Expiry</th>
+                                <th>Challans</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vehicle in vehicles %}
+                                <tr>
+                                    <td><strong>{{ vehicle.license_number }}</strong></td>
+                                    <td>{{ vehicle.model or 'N/A' }}</td>
+                                    <td>{{ vehicle.color or 'N/A' }}</td>
+                                    <td>{{ vehicle.vehicle_type or 'N/A' }}</td>
+                                    <td>{{ vehicle.owner.username if vehicle.owner else 'N/A' }}</td>
+                                    <td>{{ vehicle.registration_date.strftime('%Y-%m-%d') if vehicle.registration_date else 'N/A' }}</td>
+                                    <td>
+                                        {% if vehicle.insurance_expiry %}
+                                            {{ vehicle.insurance_expiry.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ vehicle.challans|length }}</span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No vehicles found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

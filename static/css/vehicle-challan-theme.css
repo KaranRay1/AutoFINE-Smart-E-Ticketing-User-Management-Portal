@@ -1,0 +1,680 @@
+/**
+ * AutoFINE - Vehicle & Challan Theme
+ * Light theme with vehicle/challan styling
+ * Colors: White, Light Blue, Light Yellow with Navy Blue and Red accents
+ */
+
+:root {
+    /* Light Colors */
+    --light-bg: #ffffff;
+    --light-blue: #e3f2fd;
+    --light-yellow: #fff9c4;
+    --light-gray: #f5f5f5;
+    --light-blue-accent: #bbdefb;
+    
+    /* Dark Accents for Important Elements */
+    --navy-blue: #1a237e;
+    --navy-blue-dark: #0d47a1;
+    --red-alert: #c62828;
+    --red-dark: #b71c1c;
+    
+    /* Vehicle/Challan Theme Colors */
+    --vehicle-blue: #2196f3;
+    --challan-orange: #ff9800;
+    --success-green: #4caf50;
+    --warning-amber: #ffc107;
+    
+    /* Text Colors - Dark shades for better visibility */
+    --text-dark: #000000;
+    --text-medium: #1a1a1a;
+    --text-light: #333333;
+    --text-on-dark: #ffffff;
+    
+    /* Borders & Shadows */
+    --border-light: #e0e0e0;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 8px rgba(0,0,0,0.15);
+    --shadow-lg: 0 8px 16px rgba(0,0,0,0.2);
+    
+    /* Spacing */
+    --radius: 8px;
+    --radius-lg: 12px;
+}
+
+/* Global Styles */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: #ffffff;
+    color: #000000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+}
+
+/* Home page specific - Pure white background */
+body.index-page {
+    background: #ffffff;
+}
+
+body.index-page .hero-section-professional {
+    background: #ffffff;
+    border: 2px solid var(--navy-blue);
+    box-shadow: var(--shadow-sm);
+}
+
+/* All pages should have white background */
+body:not(.index-page) {
+    background: #ffffff;
+}
+
+/* Navigation Bar - Vehicle Theme */
+.navbar-professional {
+    background: #00bfff !important;
+    box-shadow: var(--shadow-md);
+    padding: 1rem 0;
+}
+
+.navbar-brand {
+    color: #000000 !important;
+    font-weight: 700;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-brand i {
+    color: #000000 !important;
+    background: #e0e0e0;
+    padding: 0.5rem;
+    border-radius: 50%;
+    font-size: 1.2rem;
+}
+
+.navbar-brand strong {
+    color: #000000 !important;
+}
+
+.navbar-professional .nav-link {
+    color: #000000 !important;
+    font-weight: 500;
+    transition: all 0.3s;
+    padding: 0.5rem 1rem !important;
+    border-radius: var(--radius);
+}
+
+.navbar-professional .nav-link:hover,
+.navbar-professional .nav-link.active {
+    background: var(--light-blue-accent) !important;
+    color: #000000 !important;
+}
+
+/* Cards - Light Theme */
+.card-professional,
+.card {
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s;
+    margin-bottom: 1.5rem;
+}
+
+.card-professional:hover,
+.card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background: var(--light-blue);
+    border-bottom: 2px solid var(--navy-blue);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.card-title {
+    color: #000000;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+    background: #ffffff;
+    color: #000000;
+}
+
+/* Buttons - Vehicle/Challan Theme */
+.btn-professional,
+.btn {
+    border-radius: var(--radius);
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-professional-primary,
+.btn-primary {
+    background: #00bfff;
+    color: #ffffff !important;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-professional-primary i,
+.btn-primary i {
+    color: #ffffff !important;
+}
+
+.btn-professional-primary:hover,
+.btn-primary:hover {
+    background: #0095d6;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.btn-professional-success,
+.btn-success {
+    background: var(--success-green);
+    color: var(--text-on-dark);
+}
+
+.btn-professional-warning,
+.btn-warning {
+    background: var(--challan-orange);
+    color: var(--text-on-dark);
+}
+
+.btn-professional-danger,
+.btn-danger {
+    background: var(--red-alert);
+    color: var(--text-on-dark);
+}
+
+.btn-professional-info,
+.btn-info {
+    background: var(--vehicle-blue);
+    color: var(--text-on-dark);
+}
+
+/* Stat Cards - Light Blue/Yellow Theme */
+.stat-card-professional {
+    background: #ffffff;
+    border: 2px solid var(--navy-blue);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s;
+}
+
+.stat-card-professional:nth-child(1) {
+    border-color: var(--vehicle-blue);
+    background: var(--light-blue);
+}
+
+.stat-card-professional:nth-child(2) {
+    border-color: var(--challan-orange);
+    background: var(--light-yellow);
+}
+
+.stat-card-professional:nth-child(3) {
+    border-color: var(--red-alert);
+    background: #ffebee;
+}
+
+.stat-card-professional:nth-child(4) {
+    border-color: var(--success-green);
+    background: #e8f5e9;
+}
+
+.stat-card-professional:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-label {
+    color: #000000;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-card-professional h3 {
+    color: #000000;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.stats-grid-professional {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Forms - Light Theme */
+.form-control-professional,
+.form-control {
+    background: #ffffff;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    color: #000000;
+    transition: all 0.3s;
+}
+
+.form-control-professional:focus,
+.form-control:focus {
+    background: var(--light-blue);
+    border-color: var(--navy-blue);
+    box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+    outline: none;
+}
+
+.form-label {
+    color: var(--navy-blue);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+/* Tables - Vehicle Theme */
+.table-professional,
+.table {
+    background: #ffffff;
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.table-professional thead,
+.table thead {
+    background: var(--navy-blue);
+    color: var(--text-on-dark);
+}
+
+.table-professional thead th,
+.table thead th {
+    padding: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.table-professional tbody tr,
+.table tbody tr {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-light);
+    transition: all 0.2s;
+}
+
+.table-professional tbody tr:hover,
+.table tbody tr:hover {
+    background: var(--light-blue);
+}
+
+.table-professional tbody td,
+.table tbody td {
+    padding: 1rem;
+    color: #000000;
+    vertical-align: middle;
+}
+
+/* Badges - Challan Theme */
+.badge-professional,
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-professional-primary,
+.badge-primary {
+    background: var(--navy-blue);
+    color: var(--text-on-dark);
+}
+
+.badge-professional-success,
+.badge-success {
+    background: var(--success-green);
+    color: var(--text-on-dark);
+}
+
+.badge-professional-danger,
+.badge-danger {
+    background: var(--red-alert);
+    color: var(--text-on-dark);
+}
+
+.badge-professional-warning,
+.badge-warning {
+    background: var(--challan-orange);
+    color: var(--text-on-dark);
+}
+
+.badge-professional-info,
+.badge-info {
+    background: var(--vehicle-blue);
+    color: var(--text-on-dark);
+}
+
+/* Alerts/Notifications - Important Dark Colors */
+.alert-professional,
+.alert {
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+    border-left: 4px solid;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.alert-professional-info,
+.alert-info {
+    background: var(--light-blue);
+    border-color: var(--vehicle-blue);
+    color: #000000;
+    font-weight: 600;
+}
+
+.alert-professional-success,
+.alert-success {
+    background: #e8f5e9;
+    border-color: var(--success-green);
+    color: #000000;
+    font-weight: 600;
+}
+
+.alert-professional-warning,
+.alert-warning {
+    background: var(--light-yellow);
+    border-color: var(--challan-orange);
+    color: #000000;
+    font-weight: 600;
+}
+
+.alert-professional-danger,
+.alert-danger {
+    background: #ffebee;
+    border-color: var(--red-alert);
+    color: var(--red-dark);
+    font-weight: 700;
+}
+
+/* Hero Section - Vehicle Theme */
+.hero-section-professional {
+    background: #ffffff;
+    padding: 4rem 2rem;
+    border-radius: var(--radius-lg);
+    margin: 2rem 0;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    border: 2px solid var(--border-light);
+}
+
+/* Hero section with gradient for non-home pages */
+.hero-section-professional.gradient {
+    background: linear-gradient(135deg, var(--light-blue) 0%, var(--light-yellow) 50%, var(--light-blue) 100%);
+    border: 2px solid var(--navy-blue);
+    box-shadow: var(--shadow-md);
+}
+
+.hero-section-professional h1 {
+    color: #000000;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+/* All headings should be dark */
+h1, h2, h3, h4, h5, h6 {
+    color: #000000;
+    font-weight: 600;
+}
+
+/* Paragraphs and text */
+p, span, div, label, td, th {
+    color: #000000;
+}
+
+/* Form labels */
+.form-label {
+    color: #000000;
+    font-weight: 600;
+}
+
+.hero-section-professional .lead {
+    color: #000000;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+/* Main Content */
+.main-content-professional {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    margin: 2rem 0;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-light);
+}
+
+/* Vehicle/Challan Icons */
+.vehicle-icon {
+    color: var(--vehicle-blue);
+    font-size: 2rem;
+}
+
+.challan-icon {
+    color: var(--challan-orange);
+    font-size: 2rem;
+}
+
+/* Realtime Indicator */
+.realtime-indicator-professional {
+    background: var(--red-alert);
+    color: var(--text-on-dark);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px rgba(198, 40, 40, 0.5);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Floating Buttons - Vehicle Theme */
+#news-button,
+#chatbot-button {
+    background: #00bfff;
+    color: var(--text-on-dark);
+    border: 3px solid var(--vehicle-blue);
+    box-shadow: var(--shadow-lg);
+}
+
+#news-button:hover,
+#chatbot-button:hover {
+    background: #0095d6;
+    transform: scale(1.1);
+}
+
+/* Modal - Light Theme */
+.modal-content {
+    background: #ffffff;
+    border: 2px solid var(--navy-blue);
+    border-radius: var(--radius-lg);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--light-blue) 0%, var(--light-blue-accent) 100%);
+    border-bottom: 2px solid var(--navy-blue);
+    color: var(--navy-blue);
+}
+
+.modal-title {
+    color: var(--navy-blue);
+    font-weight: 700;
+}
+
+.modal-body {
+    background: #ffffff;
+    color: #000000;
+}
+
+.modal-footer {
+    background: var(--light-gray);
+    border-top: 1px solid var(--border-light);
+}
+
+/* Spinner - Vehicle Theme */
+.spinner-professional {
+    border: 3px solid var(--light-blue);
+    border-top: 3px solid var(--navy-blue);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Process Violation Form - Special Styling */
+#violationForm,
+#helmetDetectionForm {
+    background: var(--light-blue);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--navy-blue);
+}
+
+/* Challan Table - Special Highlighting */
+.challan-unpaid {
+    background: #ffebee !important;
+    border-left: 4px solid var(--red-alert);
+}
+
+.challan-paid {
+    background: #e8f5e9 !important;
+    border-left: 4px solid var(--success-green);
+}
+
+.challan-court {
+    background: var(--light-yellow) !important;
+    border-left: 4px solid var(--challan-orange);
+}
+
+/* Vehicle Card Styling */
+.vehicle-card {
+    background: #ffffff;
+    border: 2px solid var(--vehicle-blue);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    transition: all 0.3s;
+}
+
+.vehicle-card:hover {
+    border-color: var(--navy-blue);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+}
+
+.vehicle-card-header {
+    background: var(--light-blue);
+    color: var(--navy-blue);
+    padding: 1rem;
+    border-radius: var(--radius);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+/* Important Notice Boxes */
+.notice-box {
+    background: var(--light-yellow);
+    border: 3px solid var(--challan-orange);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.notice-box.important {
+    background: #ffebee;
+    border-color: var(--red-alert);
+}
+
+.notice-box.important h5 {
+    color: var(--red-dark);
+}
+
+/* Footer */
+footer {
+    background: var(--navy-blue);
+    color: var(--text-on-dark);
+    padding: 2rem 0;
+    margin-top: 3rem;
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .stats-grid-professional {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero-section-professional {
+        padding: 2rem 1rem;
+    }
+    
+    .main-content-professional {
+        padding: 1rem;
+    }
+}
+
+/* Animation */
+.animate-fade-in-professional {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-gray);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #00bfff;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #0095d6;
+}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Challan - AutoFINE{% endblock %}
+
+{% block content %}
+<div class="main-content-professional animate-fade-in-professional" style="background: #ffffff; max-width: 900px; margin: 0 auto;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0"><i class="bi bi-file-earmark-plus"></i> Generate Challan Manually</h3>
+        <a href="{{ url_for('admin_challans') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Challans
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="card-professional">
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('admin_challan_new') }}">
+            <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Owner Name</label>
+                <input type="text" name="owner_name" class="form-control-professional" placeholder="e.g., Rohan Mehta" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Phone Number</label>
+                <input type="text" name="phone" class="form-control-professional" placeholder="+91-98XXXXXXXX">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Vehicle Type</label>
+                <select name="vehicle_type" class="form-control-professional" required>
+                    <option value="">Select type...</option>
+                    <option>Car</option>
+                    <option>Bike</option>
+                    <option>Truck</option>
+                    <option>Bus</option>
+                    <option>Scooter</option>
+                    <option>Tempo</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Registration Number</label>
+                <input type="text" name="registration_number" class="form-control-professional" placeholder="e.g., UK-07-AB-1234" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Challan Type</label>
+                <select name="challan_type" class="form-control-professional" required>
+                    <option value="">Select violation...</option>
+                    <option>Speeding</option>
+                    <option>Signal Jumping</option>
+                    <option>Wrong Parking</option>
+                    <option>No Helmet</option>
+                    <option>Red Light Violation</option>
+                    <option>Wrong Lane</option>
+                    <option>Overloading</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Location</label>
+                <input type="text" name="location" class="form-control-professional" placeholder="e.g., Rajpur Road, Dehradun" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Amount (₹)</label>
+                <input type="number" step="1" min="0" name="amount" class="form-control-professional" placeholder="e.g., 1000" required>
+            </div>
+            </div>
+            <div class="mt-4 d-grid">
+                <button class="btn-professional btn-professional-primary" type="submit">
+                    <i class="bi bi-check-circle"></i> Create Challan
+                </button>
+            </div>
+        </form>
+      </div>
+    </div>
+</div>
+{% endblock %}

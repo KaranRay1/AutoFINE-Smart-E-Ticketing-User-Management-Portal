@@ -1,0 +1,663 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - AutoFINE{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <style>
+    #city-traffic-map { height: 280px; border-radius: 12px; border: 1px solid var(--border-light); }
+  </style>
+{% endblock %}
+
+{% block content %}
+<script>document.addEventListener('DOMContentLoaded',function(){document.body.setAttribute('data-page-type','admin-dashboard');});</script>
+<div class="main-content-professional animate-fade-in-professional" style="background: #ffffff;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-2" style="color: var(--navy-blue); font-weight: 700;">
+                <i class="bi bi-speedometer2 vehicle-icon"></i> AutoFINE User Management & Monitoring
+            </h2>
+            <p class="text-muted" style="color: var(--text-medium);">Manage users, vehicles, and challans</p>
+        </div>
+        <div class="realtime-indicator-professional" id="realtime-indicator" style="display: none;">
+            LIVE UPDATES
+        </div>
+    </div>
+
+    <div class="stats-grid-professional mb-4">
+        <div class="stat-card-professional">
+            <div class="stat-label"><i class="bi bi-car-front"></i> Total Vehicles</div>
+            <h3 id="total-vehicles">{{ stats.total_vehicles }}</h3>
+        </div>
+        <div class="stat-card-professional">
+            <div class="stat-label"><i class="bi bi-file-earmark-text"></i> Total Challans</div>
+            <h3 id="total-challans">{{ stats.total_challans }}</h3>
+        </div>
+        <div class="stat-card-professional">
+            <div class="stat-label"><i class="bi bi-exclamation-triangle"></i> Unpaid Challans</div>
+            <h3 id="unpaid-challans" style="color: var(--warning);">{{ stats.unpaid_challans }}</h3>
+        </div>
+        <div class="stat-card-professional">
+            <div class="stat-label"><i class="bi bi-check-circle"></i> Paid Challans</div>
+            <h3 id="paid-challans" style="color: var(--success-green);">{{ stats.paid_challans }}</h3>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card-professional">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-plus-circle" style="color: var(--primary);"></i> Challan Generation (Manual)</h5>
+                </div>
+                <div class="card-body">
+                    <form id="violationForm" method="POST" action="{{ url_for('admin_challan_new') }}">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="registration_number" class="form-label"><strong>Number Plate</strong> <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control-professional" id="registration_number" name="registration_number" placeholder="e.g., UK-07-AA-1234" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="owner_name" class="form-label">Owner Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control-professional" id="owner_name" name="owner_name" placeholder="e.g., John Doe" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="vehicle_type" class="form-label">Vehicle Type <span class="text-danger">*</span></label>
+                                    <select class="form-control-professional" id="vehicle_type" name="vehicle_type" required>
+                                        <option value="">Select type...</option>
+                                        <option value="Car">Car</option>
+                                        <option value="Bike">Bike</option>
+                                        <option value="Truck">Truck</option>
+                                        <option value="Bus">Bus</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="challan_type" class="form-label">Challan Type <span class="text-danger">*</span></label>
+                                    <select class="form-control-professional" id="challan_type" name="challan_type" required>
+                                        <option value="">Select violation...</option>
+                                        <option value="Speeding">Speeding</option>
+                                        <option value="Signal Jumping">Signal Jumping</option>
+                                        <option value="Wrong Parking">Wrong Parking</option>
+                                        <option value="No Helmet">No Helmet</option>
+                                        <option value="Red Light Violation">Red Light Violation</option>
+                                        <option value="Wrong Lane">Wrong Lane</option>
+                                        <option value="Overloading">Overloading</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="location" class="form-label">Location <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control-professional" id="location" name="location" placeholder="e.g., Rajpur Road, Dehradun" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="amount" class="form-label">Amount (₹) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control-professional" id="amount" name="amount" placeholder="e.g., 1000" required>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="phone" value="">
+                        <button type="submit" class="btn-professional btn-professional-primary">
+                            <i class="bi bi-upload"></i> Create Challan
+                        </button>
+                    </form>
+                    <div id="result" class="mt-3"></div>
+                    <div class="mt-3">
+                        <a href="{{ url_for('admin_challan_new') }}" class="btn-professional btn-professional-outline">
+                            <i class="bi bi-file-earmark-plus"></i> Advanced: Create Detailed Challan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card-professional">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-clock-history challan-icon"></i> Recent Challans <span class="badge-professional badge-professional-primary" id="recent-count">{{ recent_challans|length }}</span></h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_challans %}
+                        <div class="table-responsive">
+                            <table class="table table-professional" id="challans-table">
+                                <thead>
+                                    <tr>
+                                        <th>Challan ID</th>
+                                        <th>License Plate</th>
+                                        <th>Violation</th>
+                                        <th>Location</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for challan in recent_challans %}
+                                        <tr>
+                                            <td>#{{ challan.id }}</td>
+                                            <td>{{ challan.vehicle.license_number }}</td>
+                                            <td>{{ challan.violation_type }}</td>
+                                            <td>{{ challan.location or 'N/A' }}</td>
+                                            <td><strong>₹{{ challan.fine_amount }}</strong></td>
+                                            <td>
+                                                {% if challan.status == 'Paid' %}
+                                                    <span class="badge-professional badge-professional-success">Paid</span>
+                                                {% else %}
+                                                    <span class="badge-professional badge-professional-danger">Unpaid</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ challan.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No challans found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics & Insights Section -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card-professional">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-graph-up" style="color: var(--navy-blue);"></i> Violation Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div id="violations-chart">
+                        <div class="text-center">
+                            <div class="spinner-professional"></div>
+                            <p class="text-muted">Loading statistics...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card-professional">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-geo-alt challan-icon"></i> Violation Hotspots</h5>
+                </div>
+                <div class="card-body">
+                    <div id="hotspots-list">
+                        <div class="text-center">
+                            <div class="spinner-professional"></div>
+                            <p class="text-muted">Loading hotspots...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Predictive Insights -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card-professional">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-lightbulb" style="color: var(--challan-orange);"></i> AI Predictive Insights</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 align-items-end mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Check City Traffic Conditions</label>
+                            <input id="city-insights-input" class="form-control-professional" placeholder="e.g., Dehradun, Haldwani, Delhi, Mumbai" />
+                            <small class="text-muted">Shows: Hotspot • Peak Time • Common Violation • Recommendation</small>
+                        </div>
+                        <div class="col-md-3 d-grid">
+                            <button class="btn-professional btn-professional-primary" type="button" onclick="AnalyticsDashboard.loadCityInsights()">
+                                <i class="bi bi-search"></i> Get City Insights
+                            </button>
+                        </div>
+                        <div class="col-md-3 d-grid">
+                            <button class="btn-professional btn-professional-warning" type="button" onclick="AnalyticsDashboard.useMyCity()">
+                                <i class="bi bi-geo-alt"></i> Use Default (Dehradun)
+                            </button>
+                        </div>
+                    </div>
+                    <div id="predictive-insights">
+                        <div class="text-center">
+                            <div class="spinner-professional"></div>
+                            <p class="text-muted">Loading AI insights...</p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h6 class="mb-2"><i class="bi bi-map"></i> Live Map (Demo)</h6>
+                        <div id="city-traffic-map"></div>
+                        <small class="text-muted">Map is a lightweight demo view; integrates hotspots markers when available.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dataset Import Section -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card-professional">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-database" style="color: var(--navy-blue);"></i> Dataset Import</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Import datasets (project datasets + your own CSV from PC or web URL)</p>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Upload CSV from PC</label>
+                            <input id="dataset-upload-file" type="file" class="form-control-professional" accept=".csv" />
+                        </div>
+                        <div class="col-md-3 d-grid align-items-end">
+                            <button class="btn-professional btn-professional-primary" type="button" onclick="uploadDatasetFromPC()">
+                                <i class="bi bi-upload"></i> Upload
+                            </button>
+                        </div>
+                        <div class="col-md-3 d-grid align-items-end">
+                            <button class="btn-professional btn-professional-warning" type="button" onclick="loadDatasetsList()">
+                                <i class="bi bi-arrow-clockwise"></i> Refresh List
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-9">
+                            <label class="form-label">Import CSV from Web URL</label>
+                            <input id="dataset-url" class="form-control-professional" placeholder="https://example.com/dataset.csv" />
+                            <small class="text-muted">Supports direct CSV links. (No login/protected links.)</small>
+                        </div>
+                        <div class="col-md-3 d-grid align-items-end">
+                            <button class="btn-professional btn-professional-info" type="button" onclick="importDatasetFromURL()">
+                                <i class="bi bi-link-45deg"></i> Download & Import
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="datasets-list" class="mb-3">
+                        <div class="text-center">
+                            <div class="spinner-professional"></div>
+                            <p class="text-muted">Loading datasets...</p>
+                        </div>
+                    </div>
+                    <button class="btn-professional btn-professional-primary" onclick="importAllDatasets()">
+                        <i class="bi bi-download"></i> Import All Datasets
+                    </button>
+                    <div id="import-result" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form posts directly to /admin/challans/new and redirects to Challans list on success.
+
+// Initialize real-time updates for admin dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    const updater = new RealtimeUpdater({
+        url: '/api/realtime/challans',
+        onUpdate: function(data) {
+            if (data.challans) {
+                const unpaidCount = data.challans.filter(c => c.status === 'Unpaid').length;
+                const paidCount = data.challans.filter(c => c.status === 'Paid').length;
+                
+                const unpaidEl = document.getElementById('unpaid-challans');
+                const paidEl = document.getElementById('paid-challans');
+                const totalEl = document.getElementById('total-challans');
+                
+                if (unpaidEl) unpaidEl.textContent = unpaidCount;
+                if (paidEl) paidEl.textContent = paidCount;
+                if (totalEl) totalEl.textContent = data.count;
+                
+                showRealtimeNotification('New challan detected!');
+            }
+        },
+        onConnect: function() {
+            const indicator = document.getElementById('realtime-indicator');
+            if (indicator) indicator.style.display = 'inline-flex';
+        }
+    });
+    
+    updater.connect();
+    
+    window.addEventListener('beforeunload', () => {
+        updater.disconnect();
+    });
+    loadDashboardAnalytics();
+});
+
+function showRealtimeNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'alert-professional alert-professional-info alert-dismissible fade show position-fixed top-0 end-0 m-3';
+    notification.style.zIndex = '9999';
+    notification.innerHTML = `<strong>Live Update:</strong> ${message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 5000);
+}
+
+var AnalyticsDashboard = (function() {
+    var map = null;
+    var markers = [];
+    function centerForCity(name) {
+        var c = (name || '').toLowerCase();
+        if (c.includes('dehradun')) return [30.3165, 78.0322];
+        if (c.includes('haldwani')) return [29.2190, 79.5280];
+        if (c.includes('delhi')) return [28.6139, 77.2090];
+        if (c.includes('mumbai')) return [19.0760, 72.8777];
+        return [30.3165, 78.0322];
+    }
+    function ensureMap(center) {
+        if (!window.L) return;
+        if (!map) {
+            map = L.map('city-traffic-map').setView(center, 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+        } else {
+            map.setView(center, 12);
+        }
+    }
+    function rnd(n, center) {
+        var lat = center[0], lng = center[1];
+        var out = [];
+        for (var i = 0; i < n; i++) {
+            var dlat = (Math.random() - 0.5) * 0.08;
+            var dlng = (Math.random() - 0.5) * 0.08;
+            out.push([lat + dlat, lng + dlng]);
+        }
+        return out;
+    }
+    function clearMarkers() {
+        if (!markers || !window.L) return;
+        markers.forEach(function(m) { if (m && map) map.removeLayer(m); });
+        markers = [];
+    }
+    function plotHotspots(hs) {
+        if (!window.L || !map) return;
+        clearMarkers();
+        hs.forEach(function(pt, idx) {
+            var m = L.marker(pt).addTo(map);
+            m.bindPopup('Hotspot #' + (idx + 1));
+            markers.push(m);
+        });
+    }
+    function renderInsights(city, hs, peak, violation, recommendation) {
+        var div = document.getElementById('predictive-insights');
+        var hotHtml = hs.map(function(pt, i) { return '<li>Point ' + (i + 1) + ': ' + pt[0].toFixed(4) + ', ' + pt[1].toFixed(4) + '</li>'; }).join('');
+        div.innerHTML = '' +
+            '<div class="row g-3">' +
+              '<div class="col-md-3"><div class="card-professional"><div class="card-body">' +
+                '<h6 class="mb-2">Hotspot</h6><div class="small text-muted">High traffic areas</div><ul class="mb-0">' + hotHtml + '</ul>' +
+              '</div></div></div>' +
+              '<div class="col-md-3"><div class="card-professional"><div class="card-body">' +
+                '<h6 class="mb-2">Peak Time</h6><div class="small text-muted">Rush hours</div><div>' + peak + '</div>' +
+              '</div></div></div>' +
+              '<div class="col-md-3"><div class="card-professional"><div class="card-body">' +
+                '<h6 class="mb-2">Common Violation</h6><div class="small text-muted">Traffic violations</div><div>' + violation + '</div>' +
+              '</div></div></div>' +
+              '<div class="col-md-3"><div class="card-professional"><div class="card-body">' +
+                '<h6 class="mb-2">Recommendation</h6><div class="small text-muted">Drive safely and follow rules</div><div>' + recommendation + '</div>' +
+              '</div></div></div>' +
+            '</div>';
+        var list = document.getElementById('hotspots-list');
+        if (list) {
+            list.innerHTML = '<ul class="list-group">' + hotHtml.replace(/<li>/g, '<li class="list-group-item">') + '</ul>';
+        }
+        plotHotspots(hs);
+    }
+    function loadCityInsights() {
+        var input = document.getElementById('city-insights-input');
+        var city = (input && input.value) ? input.value : 'Dehradun';
+        var center = centerForCity(city);
+        ensureMap(center);
+        var hs = rnd(5, center);
+        var peaks = ['7:00–9:00 AM', '5:00–8:00 PM', '8:30–10:00 AM', '6:00–7:30 PM'];
+        var vios = ['Speeding', 'Signal Jumping', 'Wrong Parking', 'No Helmet', 'Red Light Violation', 'Wrong Lane', 'Overloading'];
+        var recs = ['Keep safe distance', 'Avoid peak hours', 'Follow lane discipline', 'Obey signals', 'Drive defensively'];
+        var peak = peaks[Math.floor(Math.random() * peaks.length)];
+        var violation = vios[Math.floor(Math.random() * vios.length)];
+        var recommendation = recs[Math.floor(Math.random() * recs.length)];
+        renderInsights(city, hs, peak, violation, recommendation);
+    }
+    function useMyCity() {
+        var input = document.getElementById('city-insights-input');
+        if (input) input.value = 'Dehradun';
+        loadCityInsights();
+    }
+    return { loadCityInsights: loadCityInsights, useMyCity: useMyCity };
+})();
+
+async function loadDashboardAnalytics() {
+    try {
+        const r = await fetch('/api/analytics/dashboard');
+        const data = await r.json();
+        if (data.error) return;
+        const vDiv = document.getElementById('violations-chart');
+        if (vDiv) {
+            const max = Math.max(...data.violations.map(x => x.count), 1);
+            vDiv.innerHTML = `
+                <div class="list-group">
+                    ${data.violations.map(x => `
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div><strong>${x.type}</strong></div>
+                            <div class="flex-grow-1 mx-3">
+                                <div style="height:8px; background: var(--light-blue); border-radius:4px;">
+                                    <div style="height:8px; width:${Math.round((x.count/max)*100)}%; background: var(--navy-blue); border-radius:4px;"></div>
+                                </div>
+                            </div>
+                            <span class="badge-professional badge-professional-info">${x.count}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        const hDiv = document.getElementById('hotspots-list');
+        if (hDiv) {
+            hDiv.innerHTML = `
+                <ul class="list-group">
+                    ${data.hotspots.map(h => `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>${h.location || 'N/A'}</span>
+                            <span class="badge-professional badge-professional-warning">${h.count}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+        const pDiv = document.getElementById('predictive-insights');
+        if (pDiv) {
+            const pi = data.predictive_insights || {};
+            const hotspot = pi.hotspot || 'High traffic areas';
+            const peak = pi.peak_time || 'Rush hours';
+            const violation = pi.common_violation || 'Traffic violations';
+            const recommendation = pi.recommendation || 'Drive safely and follow rules';
+            pDiv.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="card-professional"><div class="card-body">
+                            <h6 class="mb-2">Hotspot</h6>
+                            <div class="small text-muted">High traffic areas</div>
+                            <div>${hotspot}</div>
+                        </div></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card-professional"><div class="card-body">
+                            <h6 class="mb-2">Peak Time</h6>
+                            <div class="small text-muted">Rush hours</div>
+                            <div>${peak}</div>
+                        </div></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card-professional"><div class="card-body">
+                            <h6 class="mb-2">Common Violation</h6>
+                            <div class="small text-muted">Traffic violations</div>
+                            <div>${violation}</div>
+                        </div></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card-professional"><div class="card-body">
+                            <h6 class="mb-2">Recommendation</h6>
+                            <div class="small text-muted">Drive safely and follow rules</div>
+                            <div>${recommendation}</div>
+                        </div></div>
+                    </div>
+                </div>
+            `;
+        }
+    } catch (e) {
+        console.error('Analytics load failed', e);
+    }
+}
+// Dataset Import Functions
+async function loadDatasetsList() {
+    try {
+        const response = await fetch('/api/datasets/list');
+        const data = await response.json();
+        
+        if (data.success && data.datasets.length > 0) {
+            const listDiv = document.getElementById('datasets-list');
+            listDiv.innerHTML = `
+                <h6>Available Datasets (${data.total}):</h6>
+                <ul class="list-group">
+                    ${data.datasets.map(ds => `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${ds.name}</strong><br>
+                                <small class="text-muted">${ds.type}</small>
+                                <div class="small text-muted">${ds.source || ''}</div>
+                            </div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <span class="badge-professional badge-professional-info">${(ds.size / 1024).toFixed(2)} KB</span>
+                                <button class="btn btn-sm btn-primary" type="button" onclick="importOneDataset('${ds.id}')">
+                                    Import
+                                </button>
+                            </div>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        } else {
+            document.getElementById('datasets-list').innerHTML = '<p class="text-muted">No datasets found</p>';
+        }
+    } catch (error) {
+        console.error('Error loading datasets:', error);
+    }
+}
+
+async function importOneDataset(datasetId) {
+    const resultDiv = document.getElementById('import-result');
+    resultDiv.innerHTML = '<div class="alert alert-info">Importing selected dataset...</div>';
+    try {
+        const response = await fetch('/api/datasets/import-one', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ dataset_id: datasetId })
+        });
+        const data = await response.json();
+        if (data.success) {
+            resultDiv.innerHTML = `<div class="alert alert-success"><strong>Imported!</strong> ${data.message}</div>`;
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error || 'Unknown error'}</div>`;
+        }
+    } catch (e) {
+        resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${e.message}</div>`;
+    }
+}
+
+async function uploadDatasetFromPC() {
+    const fileInput = document.getElementById('dataset-upload-file');
+    const resultDiv = document.getElementById('import-result');
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        resultDiv.innerHTML = '<div class="alert alert-warning">Please choose a CSV file first.</div>';
+        return;
+    }
+    const fd = new FormData();
+    fd.append('file', fileInput.files[0]);
+    resultDiv.innerHTML = '<div class="alert alert-info">Uploading dataset...</div>';
+    try {
+        const response = await fetch('/api/datasets/upload', { method: 'POST', body: fd });
+        const data = await response.json();
+        if (!data.success) throw new Error(data.error || 'Upload failed');
+        resultDiv.innerHTML = `<div class="alert alert-success">Uploaded: <strong>${data.name}</strong>. Now importing...</div>`;
+        await importOneDataset(data.dataset_id);
+    } catch (e) {
+        resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${e.message}</div>`;
+    }
+}
+
+async function importDatasetFromURL() {
+    const urlInput = document.getElementById('dataset-url');
+    const resultDiv = document.getElementById('import-result');
+    const url = (urlInput?.value || '').trim();
+    if (!url) {
+        resultDiv.innerHTML = '<div class="alert alert-warning">Please paste a CSV URL first.</div>';
+        return;
+    }
+    resultDiv.innerHTML = '<div class="alert alert-info">Downloading & importing dataset from URL...</div>';
+    try {
+        const response = await fetch('/api/datasets/import-url', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ url })
+        });
+        const data = await response.json();
+        if (!data.success) throw new Error(data.error || 'Import failed');
+        resultDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+        setTimeout(() => location.reload(), 1500);
+    } catch (e) {
+        resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${e.message}</div>`;
+    }
+}
+
+async function importAllDatasets() {
+    if (!confirm('This will import all available datasets. Continue?')) return;
+    
+    const resultDiv = document.getElementById('import-result');
+    resultDiv.innerHTML = '<div class="alert alert-info">Importing datasets... This may take a few minutes.</div>';
+    
+    try {
+        const response = await fetch('/api/datasets/import', {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <h6><i class="bi bi-check-circle"></i> Import Successful!</h6>
+                    <p>Total records imported: <strong>${data.total_imported}</strong></p>
+                    <p>${data.message}</p>
+                </div>
+            `;
+            setTimeout(() => location.reload(), 3000);
+        } else {
+            resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${data.error || 'Unknown error'}</div>`;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+    }
+}
+
+// Load datasets list on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadDatasetsList();
+});
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+{% endblock %}

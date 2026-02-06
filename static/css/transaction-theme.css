@@ -1,0 +1,259 @@
+/**
+ * AutoFINE - Transaction Management Theme
+ * Inspired by Challan / Transaction Management dashboards
+ * Clean, professional, payment-focused UI
+ */
+
+:root {
+    --tx-bg: #f8fafc;
+    --tx-card: #ffffff;
+    --tx-border: #e2e8f0;
+    --tx-primary: #0f172a;
+    --tx-accent: #2563eb;
+    --tx-accent-hover: #1d4ed8;
+    --tx-success: #059669;
+    --tx-success-bg: #d1fae5;
+    --tx-warning: #d97706;
+    --tx-danger: #dc2626;
+    --tx-danger-bg: #fee2e2;
+    --tx-muted: #64748b;
+    --tx-radius: 10px;
+    --tx-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    --tx-shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
+}
+
+body.transaction-theme {
+    background: var(--tx-bg);
+    color: var(--tx-primary);
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+.transaction-theme .dashboard-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.transaction-theme .tx-page-header {
+    margin-bottom: 1.75rem;
+}
+
+.transaction-theme .tx-page-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--tx-primary);
+    margin: 0 0 0.25rem 0;
+}
+
+.transaction-theme .tx-page-header p {
+    color: var(--tx-muted);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.transaction-theme .tx-stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.transaction-theme .tx-stat-card {
+    background: var(--tx-card);
+    border: 1px solid var(--tx-border);
+    border-radius: var(--tx-radius);
+    padding: 1.25rem;
+    box-shadow: var(--tx-shadow);
+}
+
+.transaction-theme .tx-stat-card .tx-stat-label {
+    font-size: 0.8rem;
+    color: var(--tx-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.35rem;
+}
+
+.transaction-theme .tx-stat-card .tx-stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--tx-primary);
+}
+
+.transaction-theme .tx-stat-card.tx-stat-danger .tx-stat-value { color: var(--tx-danger); }
+.transaction-theme .tx-stat-card.tx-stat-success .tx-stat-value { color: var(--tx-success); }
+
+.transaction-theme .tx-card {
+    background: var(--tx-card);
+    border: 1px solid var(--tx-border);
+    border-radius: var(--tx-radius);
+    box-shadow: var(--tx-shadow);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.transaction-theme .tx-card-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--tx-border);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--tx-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.transaction-theme .tx-card-body {
+    padding: 1.25rem;
+}
+
+.transaction-theme .tx-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.transaction-theme .tx-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    color: var(--tx-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid var(--tx-border);
+}
+
+.transaction-theme .tx-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--tx-border);
+    color: var(--tx-primary);
+}
+
+.transaction-theme .tx-table tr:last-child td { border-bottom: 0; }
+
+.transaction-theme .tx-table tr:hover td {
+    background: var(--tx-bg);
+}
+
+.transaction-theme .tx-badge {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.transaction-theme .tx-badge-success {
+    background: var(--tx-success-bg);
+    color: var(--tx-success);
+}
+
+.transaction-theme .tx-badge-danger {
+    background: var(--tx-danger-bg);
+    color: var(--tx-danger);
+}
+
+.transaction-theme .tx-badge-warning {
+    background: #fef3c7;
+    color: var(--tx-warning);
+}
+
+.transaction-theme .tx-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.transaction-theme .tx-btn-primary {
+    background: var(--tx-accent);
+    color: #fff;
+}
+
+.transaction-theme .tx-btn-primary:hover {
+    background: var(--tx-accent-hover);
+    color: #fff;
+}
+
+.transaction-theme .tx-btn-success {
+    background: var(--tx-success);
+    color: #fff;
+}
+
+.transaction-theme .tx-btn-success:hover {
+    background: #047857;
+    color: #fff;
+}
+
+.transaction-theme .tx-btn-outline {
+    background: transparent;
+    border: 1px solid var(--tx-border);
+    color: var(--tx-primary);
+}
+
+.transaction-theme .tx-btn-outline:hover {
+    background: var(--tx-bg);
+}
+
+.transaction-theme .tx-vehicle-list .tx-vehicle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--tx-border);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.2s;
+}
+
+.transaction-theme .tx-vehicle-list .tx-vehicle-item:last-child { border-bottom: 0; }
+
+.transaction-theme .tx-vehicle-list .tx-vehicle-item:hover {
+    background: var(--tx-bg);
+}
+
+.transaction-theme .tx-vehicle-item .tx-vehicle-plate {
+    font-weight: 600;
+    color: var(--tx-primary);
+}
+
+.transaction-theme .tx-vehicle-item .tx-vehicle-meta {
+    font-size: 0.85rem;
+    color: var(--tx-muted);
+}
+
+.transaction-theme .tx-amount {
+    font-weight: 700;
+    color: var(--tx-primary);
+}
+
+.transaction-theme .tx-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.transaction-theme .tx-navbar {
+    background: var(--tx-primary) !important;
+    box-shadow: var(--tx-shadow);
+}
+
+.transaction-theme .tx-navbar .navbar-brand,
+.transaction-theme .tx-navbar .nav-link {
+    color: #fff !important;
+}
+
+.transaction-theme .tx-navbar .navbar-brand strong {
+    color: #fff !important;
+}
+
+.transaction-theme .tx-navbar .navbar-brand i {
+    background: rgba(255,255,255,0.2);
+    color: #fff !important;
+}

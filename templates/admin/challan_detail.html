@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Challan Detail - AutoFINE{% endblock %}
+
+{% block content %}
+<div class="main-content-professional animate-fade-in-professional" style="background: #ffffff;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1" style="color: var(--navy-blue); font-weight: 700;">
+        <i class="bi bi-file-earmark-text challan-icon"></i> Challan Detail
+      </h2>
+      <div style="color: var(--text-medium);">Full record for authority verification.</div>
+    </div>
+    <a class="btn-professional btn-professional-outline" href="{{ url_for('admin_challans') }}">
+      <i class="bi bi-arrow-left"></i> Back
+    </a>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="card-professional">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Challan</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-professional table-sm">
+              <tbody>
+                <tr><th>UIN</th><td>{{ challan.uin or ('#' ~ challan.id) }}</td></tr>
+                <tr><th>Challan ID</th><td>#{{ challan.id }}</td></tr>
+                <tr><th>Status</th>
+                  <td>
+                    {% if challan.status == 'Paid' %}
+                      <span class="badge-professional badge-professional-success">Paid</span>
+                    {% elif challan.status == 'Court' %}
+                      <span class="badge-professional badge-professional-warning">Court</span>
+                    {% else %}
+                      <span class="badge-professional badge-professional-danger">Unpaid</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr><th>Violation</th><td>{{ challan.violation_type }}</td></tr>
+                <tr><th>Location</th><td>{{ challan.location or 'N/A' }}</td></tr>
+                <tr><th>Fine</th><td><strong>₹{{ challan.fine_amount }}</strong></td></tr>
+                <tr><th>Issued At</th><td>{{ challan.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td></tr>
+                <tr><th>Due Date</th><td>{{ challan.due_date.strftime('%Y-%m-%d') if challan.due_date else 'N/A' }}</td></tr>
+                <tr><th>Paid At</th><td>{{ challan.paid_at.strftime('%Y-%m-%d %H:%M:%S') if challan.paid_at else 'N/A' }}</td></tr>
+                <tr><th>Payment Ref</th><td>{{ challan.payment_ref or 'N/A' }}</td></tr>
+                <tr><th>Notes</th><td>{{ challan.notes or 'N/A' }}</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card-professional">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Vehicle & Owner</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-professional table-sm">
+              <tbody>
+                <tr><th>Vehicle No</th><td>{{ challan.vehicle.license_number if challan.vehicle else 'N/A' }}</td></tr>
+                <tr><th>Vehicle Type</th><td>{{ challan.vehicle.vehicle_type if challan.vehicle else 'N/A' }}</td></tr>
+                <tr><th>Model</th><td>{{ challan.vehicle.model if challan.vehicle else 'N/A' }}</td></tr>
+                <tr><th>State</th><td>{{ challan.vehicle.state if challan.vehicle else 'N/A' }}</td></tr>
+                <tr><th>City</th><td>{{ challan.vehicle.city if challan.vehicle else 'N/A' }}</td></tr>
+                <tr><th>Owner Username</th><td>{{ owner.username if owner else 'N/A' }}</td></tr>
+                <tr><th>Owner DL No</th><td>{{ owner.dl_number if owner else 'N/A' }}</td></tr>
+                <tr><th>Owner Mobile</th><td>{{ owner.phone if owner else 'N/A' }}</td></tr>
+                <tr><th>Owner Email</th><td>{{ owner.email if owner else 'N/A' }}</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          {% if challan.evidence_image %}
+            <div class="mt-3">
+              <div style="color: var(--muted-foreground); font-size: 0.9rem;">Evidence</div>
+              <div class="mt-2">
+                <img src="{{ url_for('static', filename='uploads/' ~ challan.evidence_image) }}" class="img-fluid rounded" alt="evidence" />
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

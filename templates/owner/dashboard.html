@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard - AutoFINE{% endblock %}
+
+{% block content %}
+<div class="main-content-professional animate-fade-in-professional" style="background: #ffffff;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-2" style="color: var(--navy-blue); font-weight: 700;">
+                <i class="bi bi-speedometer2 vehicle-icon"></i> My Dashboard
+            </h2>
+            <p class="text-muted" style="color: var(--text-medium);">Manage your vehicles and challans</p>
+        </div>
+        <div class="realtime-indicator-professional" id="realtime-indicator" style="display: none;">LIVE</div>
+    </div>
+
+    <div class="stats-grid-professional mb-4">
+        <div class="stat-card-professional">
+            <div class="stat-label"><i class="bi bi-car-front"></i> Registered Vehicles</div>
+            <h3 id="total-vehicles">{{ vehicles|length }}</h3>
+        </div>
+        <div class="stat-card-professional">
+            <div class="stat-label"><i class="bi bi-exclamation-triangle"></i> Pending Challans</div>
+            <h3 id="pending-challans" style="color: var(--red-alert);">{{ challans|selectattr('status', 'equalto', 'Unpaid')|list|length }}</h3>
+        </div>
+        <div class="stat-card-professional">
+            <div class="stat-label"><i class="bi bi-check-circle"></i> Paid Challans</div>
+            <h3 id="paid-challans" style="color: var(--success-green);">{{ challans|selectattr('status', 'equalto', 'Paid')|list|length }}</h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card-professional">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-car-front vehicle-icon"></i> My Vehicles</h5>
+                </div>
+                <div class="card-body">
+                    {% if vehicles %}
+                        <div class="list-group" style="background: transparent;">
+                            {% for vehicle in vehicles %}
+                                <a href="{{ url_for('owner_vehicle_detail', vehicle_id=vehicle.id) }}"
+                                   class="list-group-item list-group-item-action card-professional mb-2"
+                                   style="border: 1px solid var(--border); background: var(--card);">
+                                    <div class="d-flex w-100 justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1" style="color: var(--navy-blue);">{{ vehicle.license_number }}</h6>
+                                            <small class="text-muted">{{ vehicle.model or 'N/A' }}</small>
+                                        </div>
+                                        <i class="bi bi-chevron-right" style="color: var(--primary);"></i>
+                                    </div>
+                                    <p class="mb-1 mt-2">Type: {{ vehicle.vehicle_type or 'N/A' }}</p>
+                                    {% if vehicle.insurance_expiry %}
+                                        <small class="text-muted">Insurance: {{ vehicle.insurance_expiry.strftime('%Y-%m-%d') }}</small>
+                                    {% endif %}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No vehicles registered.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card-professional">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-file-earmark-text challan-icon"></i> Recent Challans <span class="badge-professional badge-professional-primary" id="challan-count">{{ challans|length }}</span></h5>
+                </div>
+                <div class="card-body">
+                    {% if challans %}
+                        <div class="table-responsive">
+                            <table class="table table-professional table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Vehicle</th>
+                                        <th>Violation</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for challan in challans[:8] %}
+                                        <tr>
+                                            <td>{{ challan.vehicle.license_number }}</td>
+                                            <td>{{ challan.violation_type }}</td>
+                                            <td><strong>₹{{ "%.0f"|format(challan.fine_amount) }}</strong></td>
+                                            <td>
+                                                {% if challan.status == 'Paid' %}
+                                                    <span class="badge-professional badge-professional-success">Paid</span>
+                                                {% elif challan.status == 'Court' %}
+                                                    <span class="badge-professional badge-professional-warning">Court</span>
+                                                {% else %}
+                                                    <span class="badge-professional badge-professional-danger">Unpaid</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if challan.status == 'Unpaid' %}
+                                                    {% if challan.fine_amount >= 5000 %}
+                                                        <button class="btn btn-sm btn-warning" onclick="PaymentPlans.showPlanModal({{ challan.id }}, {{ challan.fine_amount }})" title="Payment Plan"><i class="bi bi-calendar-check"></i></button>
+                                                    {% endif %}
+                                                    <button class="btn btn-sm btn-info" onclick="AppealsSystem.showAppealModal({{ challan.id }})" title="Appeal"><i class="bi bi-gavel"></i></button>
+                                                    <a href="{{ url_for('challan_pay_page', challan_id=challan.id) }}" class="btn btn-sm btn-success" title="Pay"><i class="bi bi-credit-card"></i> Pay</a>
+                                                {% elif challan.status == 'Court' %}
+                                                    <span class="text-warning small">Court only</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No challans.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const updater = new RealtimeUpdater({
+        url: '/api/realtime/challans',
+        onUpdate: function(data) {
+            if (data.challans) {
+                var pending = data.challans.filter(function(c) { return c.status === 'Unpaid'; }).length;
+                var paid = data.challans.filter(function(c) { return c.status === 'Paid'; }).length;
+                var el = document.getElementById('pending-challans'); if (el) el.textContent = pending;
+                el = document.getElementById('paid-challans'); if (el) el.textContent = paid;
+                el = document.getElementById('challan-count'); if (el) el.textContent = data.count;
+                showRealtimeNotification('Challan update received!');
+            }
+        },
+        onConnect: function() {
+            var ind = document.getElementById('realtime-indicator'); if (ind) ind.style.display = 'inline-flex';
+        }
+    });
+    updater.connect();
+    window.addEventListener('beforeunload', function() { updater.disconnect(); });
+});
+function showRealtimeNotification(msg) {
+    var n = document.createElement('div');
+    n.className = 'alert alert-info alert-dismissible fade show position-fixed top-0 end-0 m-3';
+    n.style.zIndex = '9999';
+    n.innerHTML = '<strong>Live:</strong> ' + msg + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+    document.body.appendChild(n);
+    setTimeout(function() { if (n.parentNode) n.remove(); }, 5000);
+}
+</script>
+{% endblock %}

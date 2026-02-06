@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section-professional text-center" style="background: #ffffff; border: 2px solid var(--navy-blue);">
+    <div class="container">
+        <div class="animate-fade-in-professional">
+    {% if news %}
+    <div class="alert-professional alert-professional-{{ news.type or 'info' }} mb-4 text-start" style="max-width: 800px; margin: 0 auto;">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-newspaper me-2" style="font-size: 1.5rem;"></i>
+            <div class="flex-grow-1">
+                <h5 class="mb-1">{{ news.title or 'Traffic Update' }}</h5>
+                <p class="mb-0 small">{{ news.content or 'Stay updated with latest traffic rules.' }}</p>
+                <small class="text-muted"><i class="bi bi-clock"></i> {{ news.timestamp[:19] if news.timestamp else 'Just now' }}</small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <h1 class="display-4 mb-4" style="color: var(--navy-blue);">
+        <i class="bi bi-speedometer2 vehicle-icon"></i> AutoFINE
+    </h1>
+    <p class="lead" style="color: var(--text-medium);"><strong style="color: var(--navy-blue);">Smart E-Ticketing System</strong> - Vehicle & Challan Management</p>
+    <hr class="my-4" style="border-color: var(--border-light);">
+    <p style="color: var(--text-medium);">AI-powered traffic violation detection and challan management system with real-time updates from across India.</p>
+    
+    <div class="row mt-5">
+        <div class="col-md-4 mb-4">
+            <div class="card-professional vehicle-card" style="background: var(--light-blue); border: 2px solid var(--navy-blue);">
+                <div class="card-body text-center">
+                    <i class="bi bi-camera-video-fill vehicle-icon" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3" style="color: var(--navy-blue);">Automatic Detection</h5>
+                    <p class="card-text" style="color: var(--text-medium);">AI-powered license plate recognition from traffic camera feeds</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card-professional vehicle-card" style="background: var(--light-yellow); border: 2px solid var(--challan-orange);">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-check" style="font-size: 3rem; color: var(--success-green);"></i>
+                    <h5 class="card-title mt-3" style="color: var(--navy-blue);">Transparent System</h5>
+                    <p class="card-text" style="color: var(--text-medium);">View your vehicle details and challans in real-time</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card-professional vehicle-card" style="background: var(--light-blue); border: 2px solid var(--vehicle-blue);">
+                <div class="card-body text-center">
+                    <i class="bi bi-graph-up challan-icon" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3" style="color: var(--navy-blue);">Smart Management</h5>
+                    <p class="card-text" style="color: var(--text-medium);">Efficient traffic violation management for authorities</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <a href="{{ url_for('login') }}" class="btn-professional btn-professional-primary btn-lg me-3" style="background-color: #00bfff; border-color: #00bfff; color: #ffffff; padding: 12px 32px; font-size: 16px; font-weight: 600; border-radius: 8px;">
+            <i class="bi bi-box-arrow-in-right" style="color: #ffffff;"></i> Login
+        </a>
+        <a href="{{ url_for('register') }}" class="btn-professional btn-professional-primary btn-lg" style="background-color: #00bfff; border-color: #00bfff; color: #ffffff; padding: 12px 32px; font-size: 16px; font-weight: 600; border-radius: 8px;">
+            <i class="bi bi-person-plus" style="color: #ffffff;"></i> Register
+        </a>
+    </div>
+</div>
+{% endblock %}
